@@ -18,8 +18,9 @@
  *    shallowCopy({}) => {}
  */
 function shallowCopy(obj) {
-  const copyObj = obj;
-  return copyObj;
+  const copy = {};
+  Object.assign(copy, obj);
+  return copy;
 }
 
 /**
@@ -34,19 +35,14 @@ function shallowCopy(obj) {
  *    mergeObjects([]) => {}
  */
 function mergeObjects(objects) {
-  const mergedObj = {};
-  objects.forEach((obj) => {
-    Object.keys(obj).forEach((key) => {
-      if (mergedObj[key] !== undefined) {
-        mergedObj[key] += obj[key];
-      } else {
-        mergedObj[key] = obj[key];
-      }
+  return objects.reduce((obj, object) => {
+    const copyObj = { ...obj };
+    Object.entries(object).forEach(([key, value]) => {
+      copyObj[key] = copyObj[key] ? copyObj[key] + value : value;
     });
-  });
-  return mergedObj;
+    return copyObj;
+  }, {});
 }
-
 /**
  * Removes a properties from an object.
  *
@@ -85,16 +81,14 @@ function compareObjects(obj1, obj2) {
   const keys2 = Object.keys(obj2);
   const values1 = Object.values(obj1);
   const values2 = Object.values(obj2);
-  if (keys1.length !== keys2.length) {
+  if (
+    keys1.length !== keys2.length ||
+    JSON.stringify(keys1) !== JSON.stringify(keys2) ||
+    JSON.stringify(values1) !== JSON.stringify(values2)
+  ) {
     return false;
   }
-  if (JSON.stringify(keys1) !== JSON.stringify(keys2)) {
-    return false;
-  }
-  if (JSON.stringify(values1) === JSON.stringify(values2)) {
-    return true;
-  }
-  return false;
+  return true;
 }
 
 /**
@@ -108,8 +102,8 @@ function compareObjects(obj1, obj2) {
  *    isEmptyObject({}) => true
  *    isEmptyObject({a: 1}) => false
  */
-function isEmptyObject(/* obj */) {
-  throw new Error('Not implemented');
+function isEmptyObject(obj) {
+  return Object.keys(obj).length === 0;
 }
 
 /**
@@ -128,8 +122,10 @@ function isEmptyObject(/* obj */) {
  *    immutableObj.newProp = 'new';
  *    console.log(immutableObj) => {a: 1, b: 2}
  */
-function makeImmutable(/* obj */) {
-  throw new Error('Not implemented');
+function makeImmutable(obj) {
+  const copyObj = obj;
+  Object.freeze(copyObj);
+  return copyObj;
 }
 
 /**
@@ -142,8 +138,19 @@ function makeImmutable(/* obj */) {
  *    makeWord({ a: [0, 1], b: [2, 3], c: [4, 5] }) => 'aabbcc'
  *    makeWord({ H:[0], e: [1], l: [2, 3, 8], o: [4, 6], W:[5], r:[7], d:[9]}) => 'HelloWorld'
  */
-function makeWord(/* lettersObject */) {
-  throw new Error('Not implemented');
+function makeWord(lettersObject) {
+  const obj = lettersObject;
+  const letters = Object.keys(obj);
+  const numbers = Object.values(obj).flat().length;
+  let word = '';
+  for (let i = 0; i < numbers; i += 1) {
+    for (let j = 0; j < letters.length; j += 1) {
+      if (obj[letters[j]].includes(i)) {
+        word += letters[j];
+      }
+    }
+  }
+  return word;
 }
 
 /**
@@ -160,8 +167,22 @@ function makeWord(/* lettersObject */) {
  *    sellTickets([25, 25, 50]) => true
  *    sellTickets([25, 100]) => false (The seller does not have enough money to give change.)
  */
-function sellTickets(/* queue */) {
-  throw new Error('Not implemented');
+function sellTickets(queue) {
+  const priceTicket = 25;
+  let totalCost = 0;
+  if (queue[0] > priceTicket) {
+    return false;
+  }
+  for (let i = 0; i < queue.length; i += 1) {
+    if (queue[i] === priceTicket) {
+      totalCost += priceTicket;
+    } else if (queue[i] - priceTicket <= totalCost) {
+      totalCost += priceTicket;
+    } else {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**
