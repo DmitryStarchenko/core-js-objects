@@ -220,8 +220,8 @@ function Rectangle(width, height) {
  *    [1,2,3]   =>  '[1,2,3]'
  *    { height: 10, width: 20 } => '{"height":10,"width":20}'
  */
-function getJSON(/* obj */) {
-  throw new Error('Not implemented');
+function getJSON(obj) {
+  return JSON.stringify(obj);
 }
 
 /**
@@ -235,8 +235,9 @@ function getJSON(/* obj */) {
  *    const r = fromJSON(Circle.prototype, '{"radius":10}');
  *
  */
-function fromJSON(/* proto, json */) {
-  throw new Error('Not implemented');
+function fromJSON(proto, json) {
+  const obj = JSON.parse(json);
+  return Object.setPrototypeOf(obj, proto);
 }
 
 /**
@@ -265,8 +266,18 @@ function fromJSON(/* proto, json */) {
  *      { country: 'Russia',  city: 'Saint Petersburg' }
  *    ]
  */
-function sortCitiesArray(/* arr */) {
-  throw new Error('Not implemented');
+function sortCitiesArray(arr) {
+  const sorted = (a, b) => {
+    return a.toLowerCase() < b.toLowerCase()
+      ? -1
+      : a.toLowerCase() > b.toLowerCase();
+  };
+  const result = arr
+    .sort((obj1, obj2) => sorted(obj1.country, obj2.country))
+    .sort((obj1, obj2) =>
+      obj1.country === obj2.country ? sorted(obj1.city, obj2.city) : 0
+    );
+  return result;
 }
 
 /**
@@ -299,8 +310,15 @@ function sortCitiesArray(/* arr */) {
  *    "Poland" => ["Lodz"]
  *   }
  */
-function group(/* array, keySelector, valueSelector */) {
-  throw new Error('Not implemented');
+function group(array, keySelector, valueSelector) {
+  const map = array.reduce((acc, obj) => {
+    const key = keySelector(obj);
+    acc[key] = acc[key] ? acc[key] : [];
+    acc[key].push(valueSelector(obj));
+    return acc;
+  }, {});
+
+  return Object.entries(map);
 }
 
 /**
